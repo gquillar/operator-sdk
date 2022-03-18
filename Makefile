@@ -12,6 +12,7 @@ export GIT_COMMIT = $(shell git rev-parse HEAD)
 export K8S_VERSION = 1.21
 # TODO: bump this to 1.21, after kubectl `--generator` flag is removed from e2e tests.
 export ENVTEST_K8S_VERSION = 1.21.1
+export KIND_VERSION = 0.12.0
 
 # Build settings
 export TOOLS_DIR = tools/bin
@@ -157,13 +158,13 @@ export KIND_CLUSTER := operator-sdk-e2e
 
 KUBEBUILDER_ASSETS = $(PWD)/$(shell go install sigs.k8s.io/controller-runtime/tools/setup-envtest@latest && $(shell go env GOPATH)/bin/setup-envtest use $(ENVTEST_K8S_VERSION) --bin-dir tools/bin/ -p path)
 test-e2e-setup: build
-	$(SCRIPTS_DIR)/fetch kind 0.11.0
+	$(SCRIPTS_DIR)/fetch kind $(KIND_VERSION)
 	$(SCRIPTS_DIR)/fetch kubectl $(ENVTEST_K8S_VERSION) # Install kubectl AFTER envtest because envtest includes its own kubectl binary
 	[[ "`$(TOOLS_DIR)/kind get clusters`" =~ "$(KIND_CLUSTER)" ]] || $(TOOLS_DIR)/kind create cluster --image="kindest/node:v$(ENVTEST_K8S_VERSION)" --name $(KIND_CLUSTER)
 
 .PHONY: test-e2e-teardown
 test-e2e-teardown:
-	$(SCRIPTS_DIR)/fetch kind 0.11.0
+	$(SCRIPTS_DIR)/fetch kind $(KIND_VERSION)
 	$(TOOLS_DIR)/kind delete cluster --name $(KIND_CLUSTER)
 	rm -f $(KUBECONFIG)
 
